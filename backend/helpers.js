@@ -4,7 +4,7 @@ function getConfig() {
   const config = {};
 
   config.jwtSecret = process.env.JWT_SECRET;
-  config.dbUri = process.env.dbUri;
+  config.dbUri = process.env.DB_URI;
   config.redisHost = process.env.REDIS_HOST || "localhost";
 
   return config;
@@ -29,7 +29,29 @@ function getRequestUser() {
 
     if (!token) return auth;
 
-    jwt.verify(token, config.jwtSecret);
+    // decode the token and verify it.
+    // if there is an error set the appropriate flag and return it
+    let decodedToken;
+    try {
+      decodedToken = jwt.verify(token, config.jwtSecret);
+    } catch (err) {
+      switch (err) {
+        case `TokenExpiredError`:
+          auth.tokenExpired = true;
+          break;
+        default:
+          auth.badToken = true;
+          break;
+      }
+
+      return auth;
+    }
+
+    // if we're here then token is verified and got decoded properly
+
+    auth.decoded = decodedToken;
+
+    return auth;
   };
 }
 
