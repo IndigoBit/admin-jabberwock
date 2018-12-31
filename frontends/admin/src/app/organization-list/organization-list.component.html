@@ -1,0 +1,24 @@
+<mat-card class="page-title">
+  <mat-card-title i18n>Organizations</mat-card-title>
+</mat-card>
+
+<div *ngIf="(organizationList$ | async) as organizationList; else loading">
+  <a
+    *ngFor="let organization of organizationList"
+    [routerLink]="['/organizations', organization._id]"
+  >
+    <mat-card class="card-list-table">
+      <mat-card-header>
+        <avatar mat-card-avatar [name]="organization.name" size="40"></avatar>
+        <mat-card-title>{{ organization.name }}</mat-card-title>
+        <!-- <mat-card-subtitle> {{ organization.website }}</mat-card-subtitle> -->
+      </mat-card-header>
+    </mat-card>
+  </a>
+</div>
+
+<ng-template #loading i18n>
+  <mat-card>
+    <mat-card-subtitle>Loading Organization List...</mat-card-subtitle>
+  </mat-card>
+</ng-template>

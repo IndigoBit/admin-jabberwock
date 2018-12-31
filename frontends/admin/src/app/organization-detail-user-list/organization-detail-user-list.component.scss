@@ -1,0 +1,35 @@
+.full-width-table,
+#user-filter {
+  width: 100%;
+}
+
+tr.detail-row {
+  height: 0;
+}
+
+// todo: make this work with theming
+tr.table-row:not(.expanded-row):hover {
+  background: #f5f5f5;
+}
+
+tr.table-row:not(.expanded-row):active {
+  background: #efefef;
+}
+
+.table-row td {
+  border-bottom-width: 0;
+}
+
+.row-detail {
+  overflow: hidden;
+  display: flex;
+}
+
+.expanded-detail-row > td {
+  padding: 24px;
+}
+
+.disabled-user {
+  font-style: italic;
+  opacity: 0.7;
+}

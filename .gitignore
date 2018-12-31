@@ -1,3 +1,6 @@
 /.history
 /backend/node_modules
 /backend/.env
+/frontends/admin/node_modules
+orgids.txt
+Scrapbook-1.mongo

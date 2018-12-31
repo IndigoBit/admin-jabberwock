@@ -1,0 +1,13 @@
+<header>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+      <button mat-button color="accent" [routerLink]="['']">
+        <mat-icon aria-label="home">scatter_plot</mat-icon>
+        Jabberwock
+      </button>
+      <button mat-button [routerLink]="['organizations']">Organizations</button>
+    </mat-toolbar-row>
+  </mat-toolbar>
+</header>
+
+<section class="container"><router-outlet></router-outlet></section>

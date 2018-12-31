@@ -1,0 +1,45 @@
+<div *ngIf="(organization$ | async) as organization; else loading">
+  <ng-container
+    [ngTemplateOutlet]="inEditMode ? editMode : viewMode"
+    [ngTemplateOutletContext]="{ organization: organization }"
+  ></ng-container>
+</div>
+
+<ng-template #loading>Loading Organization...</ng-template>
+
+<ng-template #editMode let-organization="organization">
+  <app-organization-detail-edit-mode
+    [data]="organization"
+    (updated)="updatedCard()"
+  ></app-organization-detail-edit-mode>
+</ng-template>
+
+<ng-template #viewMode let-organization="organization">
+  <mat-card class="page-content-view-mode">
+    <mat-card-header>
+      <avatar mat-card-avatar [name]="organization.name" size="40"></avatar>
+      <mat-card-title>{{ organization.name }}</mat-card-title>
+      <mat-card-subtitle>
+        <a [href]="organization.website"> {{ organization.website }} </a>
+      </mat-card-subtitle>
+      <div>
+        <button mat-icon-button>
+          <mat-icon aria-label="edit" (click)="editCard()">edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteCard()">
+          <mat-icon aria-label="delete">delete_forever</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Contact Name: {{ organization.contact?.name }}</p>
+      <p>Address: {{ organization.contact?.address }}</p>
+      <p>Phone: {{ organization.contact?.phone }}</p>
+      <p>Email: {{ organization.contact?.email }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  <app-organization-detail-user-list
+    [data]="organization.users"
+  ></app-organization-detail-user-list>
+</ng-template>

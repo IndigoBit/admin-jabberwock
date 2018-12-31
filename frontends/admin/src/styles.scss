@@ -1,0 +1,35 @@
+@import "styles-variables.scss";
+@import "styles-reset.scss";
+
+@import "~bootstrap/scss/bootstrap-reboot";
+@import "~bootstrap/scss/bootstrap-grid";
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+mat-card.mat-card,
+button.mat-raised-button,
+button.mat-button {
+  border-radius: 0;
+}
+
+mat-card.page-title {
+  margin-bottom: 1em;
+}
+
+mat-card.section-title {
+  margin: 1.5em 0 0.5em 0;
+}
+
+mat-card.page-content-view-mode {
+  .mat-card-header-text {
+    flex-grow: 1;
+  }
+}
