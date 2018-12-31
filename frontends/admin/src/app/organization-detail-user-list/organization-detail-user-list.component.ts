@@ -54,7 +54,8 @@ export class OrganizationDetailUserListComponent implements OnInit {
       this.paginator,
       this.sort,
       this.data,
-      this.filterSubject
+      this.filterSubject,
+      this.displayedColumns
     );
   }
 

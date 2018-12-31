@@ -14,7 +14,8 @@ export class OrganizationDetailUserListDataSource extends DataSource<User> {
     private paginator: MatPaginator,
     private sort: MatSort,
     public data: User[],
-    public filterSubject: BehaviorSubject<string>
+    public filterSubject: BehaviorSubject<string>,
+    public displayColumns: string[]
   ) {
     super();
   }
@@ -74,12 +75,22 @@ export class OrganizationDetailUserListDataSource extends DataSource<User> {
       user =>
         // get the props in the user object
         Object.keys(user)
+          // filter out anything that isn't shown so we don't have results that 'look' irrelevant
+          .filter(key => this.displayColumns.includes(key))
           // create a string based on the value of the user prop and concatenate them into a big string
-          .reduce(
-            (valueString, key) =>
-              valueString.concat(user[key].toLocaleUpperCase()),
-            ""
-          )
+          .reduce((valueString, key) => {
+            const value = user[key];
+            switch (typeof value) {
+              case "number":
+                return valueString.concat(value.toString());
+              case "string":
+                return valueString.concat(value.toLocaleUpperCase());
+              case "object":
+                return valueString.concat(JSON.stringify(valueString));
+              default:
+                return valueString;
+            }
+          }, "")
           // check if that string contains the filter text
           .includes(filterValue)
       // if it does this is true, that user passess the test and is returned
