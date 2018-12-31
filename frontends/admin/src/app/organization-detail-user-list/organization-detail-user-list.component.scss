@@ -7,13 +7,17 @@ tr.detail-row {
   height: 0;
 }
 
-// todo: make this work with theming
-tr.table-row:not(.expanded-row):hover {
-  background: #f5f5f5;
-}
+// // todo: make this work with theming
+// tr.table-row:not(.expanded-row):hover {
+//   background: mat-color($accent, 300);
+// }
 
-tr.table-row:not(.expanded-row):active {
-  background: #efefef;
+// tr.table-row:not(.expanded-row):active {
+//   background: mat-color($accent, 700);
+// }
+
+tr.table-row:hover {
+  cursor: pointer;
 }
 
 .table-row td {

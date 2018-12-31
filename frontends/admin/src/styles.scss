@@ -4,6 +4,10 @@
 @import "~bootstrap/scss/bootstrap-reboot";
 @import "~bootstrap/scss/bootstrap-grid";
 
+@import "styles-theming.scss";
+
+@include mat-core();
+
 html,
 body {
   height: 100%;

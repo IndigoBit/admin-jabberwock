@@ -1,13 +1,26 @@
-<header>
-  <mat-toolbar color="primary">
-    <mat-toolbar-row>
-      <button mat-button color="accent" [routerLink]="['']">
-        <mat-icon aria-label="home">scatter_plot</mat-icon>
-        Jabberwock
-      </button>
-      <button mat-button [routerLink]="['organizations']">Organizations</button>
-    </mat-toolbar-row>
-  </mat-toolbar>
-</header>
+<main class="mat-app-background">
+  <header>
+    <mat-toolbar color="primary">
+      <mat-toolbar-row>
+        <nav>
+          <button mat-button color="accent" [routerLink]="['']">
+            <mat-icon aria-label="home">scatter_plot</mat-icon>
+            Jabberwock
+          </button>
+          <button mat-button [routerLink]="['organizations']">
+            Organizations
+          </button>
+        </nav>
+        <div class="toolbar-actions">
+          <button mat-icon-button>
+            <mat-icon aria-label="Change themes" (click)="invertTheme()"
+              >invert_colors</mat-icon
+            >
+          </button>
+        </div>
+      </mat-toolbar-row>
+    </mat-toolbar>
+  </header>
 
-<section class="container"><router-outlet></router-outlet></section>
+  <section class="container"><router-outlet></router-outlet></section>
+</main>
