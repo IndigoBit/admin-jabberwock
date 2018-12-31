@@ -4,7 +4,7 @@ require("dotenv").config();
 const { start } = require("./app");
 
 start()
-  .then(server => server.listen(4200))
+  .then(server => server.listen(process.env.PORT))
   .then(({ url }) => {
     console.log(`🚀 Server ready at ${url}`);
   })

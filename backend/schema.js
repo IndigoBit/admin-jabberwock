@@ -4,8 +4,39 @@ const { ObjectId } = require("mongodb");
 
 const { normalize } = require("./helpers");
 
-async function updateDocument(collection, params, whiteList) {
-  const docId = ObjectId(args._id);
+function contactReducer(flattened) {
+  if (!flattened) return;
+
+  const contact = {
+    name: flattened.contact_name,
+    address: flattened.contact_address,
+    phone: flattened.contact_phone,
+    email: flattened.contact_email
+  };
+
+  Object.keys(contact)
+    .filter(key => typeof contact[key] === "undefined")
+    .forEach(key => delete contact[key]);
+
+  return contact;
+}
+
+function flattenedReducers(flattened) {
+  if (!flattened) return;
+
+  const reduced = {};
+
+  const contact = contactReducer(flattened);
+  if (contact) reduced.contact = contact;
+
+  return reduced;
+}
+
+async function updateDocument(collection, _params, whiteList) {
+  Object.freeze(_params);
+
+  const params = Object.assign({}, _params, flattenedReducers(_params));
+  const docId = ObjectId(params._id);
   const updatedFields = {};
 
   Object.keys(params)
@@ -20,7 +51,10 @@ async function updateDocument(collection, params, whiteList) {
   return normalize(await collection.findOne(docId));
 }
 
-async function createDocument(collection, params, whiteList) {
+async function createDocument(collection, _params, whiteList) {
+  Object.freeze(_params);
+
+  const params = Object.assign({}, _params, flattenedReducers(_params));
   const document = {};
 
   Object.keys(params)
@@ -47,80 +81,93 @@ async function getAll(collection, query) {
 
 const whiteList = {
   organizations: {
-    create: [`name`],
-    update: [`name`]
+    create: [`name`, `website`, `contact`],
+    update: [`name`, `website`, `contact`]
   },
   users: {
     create: [`name`],
-    update: [`name`]
+    update: [`name`, `active`]
   },
   articles: {
-    create: [`name`, `description`, `content`, `creator`],
-    update: [`name`, `description`, `content`]
+    create: [`name`, `description`, `content`, `creator`, `tags`],
+    update: [`name`, `description`, `content`, `tags`]
   }
 };
 
 const typeDefs = gql`
   type Query {
-    organizations: [Organization]!
+    organizationList: [Organization]!
     organization(_id: ID): Organization
 
-    users: [User]!
+    userList: [User]!
     user(_id: ID): User
 
-    articles: [Article]!
+    articleList: [Article]!
     article(_id: ID): Article
-
-    # nti
-    library: Library
+    articleListByTag(tag: String!): [Article]!
   }
 
   type Mutation {
-    createOrganization(name: String!): Organization
-    updateOrganization(_id: ID!, name: String): Organization
+    createOrganization(
+      name: String!
+      website: String
+      contact_name: String!
+      contact_email: String!
+      contact_address: String
+      contact_phone: String
+    ): Organization
+    updateOrganization(
+      _id: ID!
+      name: String
+      website: String
+      contact_name: String!
+      contact_email: String!
+      contact_address: String!
+      contact_phone: String!
+    ): Organization
 
     createUser(name: String!): User
-    updateUser(_id: ID!, name: String): User
+    updateUser(_id: ID!, name: String, active: Boolean): User
 
     createArticle(
       name: String!
       creator: String!
       description: String
       content: String
+      tags: [String]!
     ): User
     updateArticle(
       _id: ID!
       name: String
       description: String
       content: String
+      tags: [String]
     ): User
+    enableUser(_id: ID!): User
+    disableUser(_id: ID!): User
   }
 
   type Organization {
     _id: ID!
     name: String!
     users: [User]
-    library: Library
+    articles: [Article]
+    contact: Contact!
+    website: String
   }
 
   type User {
     _id: ID!
     name: String!
-    organization: Organization
+    organization: Organization!
+    active: Boolean
   }
 
-  # nti
-  type Library {
-    _id: ID!
-    folders: [Folder]
-  }
-
-  # nti
-  type Folder {
-    _id: ID!
+  type Contact {
     name: String!
-    articles: [Article]
-    folders: [Folder]
+    email: String!
+    phone: String
+    address: String
   }
 
   type Article {
@@ -129,29 +176,25 @@ const typeDefs = gql`
     description: String
     content: String
     creator: User
+    tags: [String]
   }
 `;
 
 const resolvers = {
   Query: {
-    organizations: async (_, __, { dataSources }) =>
+    organizationList: async (_, __, { dataSources }) =>
       await getAll(dataSources.organizations),
     organization: async (_, { _id }, { dataSources }) =>
       await getOneById(dataSources.organizations, _id),
 
-    users: async (_, __, { dataSources }) => await getAll(dataSources.users),
+    userList: async (_, __, { dataSources }) => await getAll(dataSources.users),
     user: async (_, { _id }, { dataSources }) =>
       await getOneById(dataSources.users, _id),
 
-    articles: async (_, __, { dataSources }) =>
+    articleList: async (_, __, { dataSources }) =>
       await getAll(dataSources.articles),
     article: async (_, { _id }, { dataSources }) =>
-      await getOneById(dataSources.articles, _id),
-
-    // todo: needs to be based on the user's organization
-    library: async (_, { _id }, { dataSources }) => {
-      return null;
-    }
+      await getOneById(dataSources.articles, _id)
   },
   Mutation: {
     createOrganization: async (_, args, { dataSources }) =>
@@ -171,6 +214,19 @@ const resolvers = {
       await createDocument(dataSources.users, args, whiteList.users.create),
     updateUser: async (_, args, { dataSources }) =>
       await updateDocument(dataSources.users, args, whiteList.users.update),
+    enableUser: async (_, args, { dataSources }) =>
+      await updateDocument(
+        dataSources.users,
+        { _id: args._id, active: true },
+        whiteList.users.update
+      ),
+    disableUser: async (_, args, { dataSources }) =>
+      await updateDocument(
+        dataSources.users,
+        { _id: args._id, active: false },
+        whiteList.users.update
+      ),
+
     createArticle: async (_, args, { dataSources }) =>
       await createDocument(
         dataSources.articles,
@@ -186,28 +242,11 @@ const resolvers = {
   },
   Organization: {
     users: async (parent, __, { dataSources }) =>
-      await getAll(dataSources.users, { organization: ObjectI(parent._id) }),
-    library: async (parent, __, { dataSources }) => {
-      const libId = parent && parent.library;
-      if (!libId) return;
-
-      return await getOneById(dataSources.libraries, libId);
-    }
+      await getAll(dataSources.users, { organization: ObjectId(parent._id) })
   },
   User: {
     organization: async (parent, __, { dataSources }) =>
       await getOneById(dataSources.organizations, parent.organization)
-  },
-  Folder: {
-    articles: async (parent, __, { dataSources }) => {
-      if (!parent.articles || !parent.articles.length) return;
-
-      articlePromises = parent.articles.map(articleId =>
-        getOneById(dataSources.articles, articleId)
-      );
-
-      return Promise.all(articlePromises);
-    }
   }
 };
 
