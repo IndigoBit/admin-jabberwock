@@ -1,0 +1,43 @@
+<div>
+  <p *ngIf="!editMode">
+    <label>{{ label }}:</label> <span>{{ data }}</span>
+    <button
+      mat-icon-button
+      color="primary"
+      matTooltip="Edit"
+      matTooltipPosition="before"
+      (click)="edit()"
+      [disabled]="viewOnlyMode"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
+  </p>
+  <p *ngIf="editMode">
+    <mat-form-field>
+      <input
+        matInput
+        [placeholder]="label"
+        [value]="data"
+        [formControl]="formControl"
+        [type]="inputType"
+      />
+    </mat-form-field>
+    <button
+      mat-icon-button
+      color="accent"
+      matTooltip="Save"
+      matTooltipPosition="before"
+      (click)="save()"
+    >
+      <mat-icon>done</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      matTooltip="Cancel"
+      matTooltipPosition="before"
+      (click)="cancel()"
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </p>
+</div>

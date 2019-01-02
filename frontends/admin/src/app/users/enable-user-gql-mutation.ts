@@ -1,19 +1,19 @@
 import { Injectable } from "@angular/core";
 import { Mutation } from "apollo-angular";
 import gql from "graphql-tag";
-import { User } from "./gql-schemas/user.gql-schema";
+import { User } from "./user.gql-schema";
 
 export interface Response {
-  disableUser: User;
+  user: User;
 }
 
 @Injectable({
   providedIn: "root"
 })
-export class DisableUserGQL extends Mutation<Response> {
+export class EnableUserGqlMutation extends Mutation<Response> {
   document = gql`
-    mutation DisableUser($userId: ID!) {
-      disableUser(_id: $userId) {
+    mutation EnableUser($userId: ID!) {
+      enableUser(_id: $userId) {
         _id
         active
       }

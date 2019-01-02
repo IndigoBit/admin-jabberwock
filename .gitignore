@@ -4,3 +4,5 @@
 /frontends/admin/node_modules
 orgids.txt
 Scrapbook-1.mongo
+/frontends/admin/src/app/salvage
+Scrapbook-2.mongo

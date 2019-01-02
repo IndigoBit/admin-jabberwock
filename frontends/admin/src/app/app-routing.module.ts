@@ -1,13 +1,13 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
-import { OrganizationListComponent } from './organization-list/organization-list.component';
-import { OrganizationDetailComponent } from './organization-detail/organization-detail.component';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { PageNotFoundComponent } from "./page-not-found/page-not-found.component";
+import { UserListComponent } from "./users/components/user-list/user-list.component";
+import { UserDetailComponent } from "./users/components/user-detail/user-detail.component";
 
 const routes: Routes = [
-  { path: "organizations", component: OrganizationListComponent },
-  { path: "organizations/:id", component: OrganizationDetailComponent },
-  { path: "", redirectTo: "/organizations", pathMatch: "full" },
+  { path: "users", component: UserListComponent },
+  { path: "users/:id", component: UserDetailComponent },
+  { path: "", redirectTo: "/users", pathMatch: "full" },
   { path: "**", component: PageNotFoundComponent }
 ];
 

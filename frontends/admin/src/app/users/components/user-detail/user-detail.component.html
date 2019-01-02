@@ -1,0 +1,93 @@
+<div *ngIf="(user$ | async) as user; else loading">
+  <mat-card class="page-content-view-mode">
+    <mat-card-header>
+      <avatar
+        mat-card-avatar
+        [name]="user.name"
+        [email]="user.email"
+        size="40"
+      ></avatar>
+      <mat-card-title>{{ user.name }}</mat-card-title>
+      <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
+      <div>
+        <button mat-icon-button color="warn" (click)="deleteCard()">
+          <mat-icon
+            aria-label="delete"
+            matTooltip="Permanently delete this user"
+            matTooltipPosition="before"
+            >delete_forever</mat-icon
+          >
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+      <app-inline-text-edit
+        [data]="user.name"
+        label="Name"
+        [viewOnlyMode]="viewOnlyMode"
+        (updatedData)="updateData($event, 'name')"
+        (editingData)="editingData($event)"
+        inputType="text"
+      ></app-inline-text-edit>
+      <app-inline-text-edit
+        [data]="user.username"
+        label="Username"
+        [viewOnlyMode]="viewOnlyMode"
+        (updatedData)="updateData($event, 'username')"
+        (editingData)="editingData($event)"
+        inputType="text"
+      ></app-inline-text-edit>
+      <app-inline-text-edit
+        [data]="user.email"
+        label="Email"
+        [viewOnlyMode]="viewOnlyMode"
+        (updatedData)="updateData($event, 'email')"
+        (editingData)="editingData($event)"
+        inputType="email"
+      ></app-inline-text-edit>
+    </mat-card-content>
+    <mat-card-actions>
+      <button
+        mat-button
+        color="warn"
+        *ngIf="user.active === true"
+        matTooltip="Prevents user from logging in"
+        matTooltipPosition="above"
+        (click)="disableUser()"
+        i18n
+      >
+        Disable User
+      </button>
+      <button
+        mat-button
+        color="warn"
+        *ngIf="user.active === false"
+        matTooltip="Allows user to log in again"
+        matTooltipPosition="above"
+        (click)="enableUser()"
+        i18n
+      >
+        Enable User
+      </button>
+      <span
+        [matTooltip]="
+          user.requirePasswordReset
+            ? 'User must already reset password when they log in'
+            : 'Prompt user to reset their password when they log in'
+        "
+        matTooltipPosition="above"
+      >
+        <button
+          mat-button
+          (click)="resetPassword()"
+          [disabled]="user.requirePasswordReset"
+          i18n
+        >
+          Reset Password
+        </button>
+      </span>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<ng-template #loading>Loading User...</ng-template>

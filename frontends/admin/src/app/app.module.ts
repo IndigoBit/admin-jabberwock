@@ -4,7 +4,7 @@ import { HttpClientModule } from "@angular/common/http";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCardModule } from "@angular/material/card";
-import { ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { LayoutModule } from "@angular/cdk/layout";
 import {
   MatTableModule,
@@ -16,27 +16,29 @@ import {
   MatListModule,
   MatInputModule,
   MatSelectModule,
-  MatRadioModule
+  MatRadioModule,
+  MatTabsModule,
+  MatMenuModule,
+  MatExpansionModule,
+  MatTooltipModule
 } from "@angular/material";
 import { AvatarModule } from "ng2-avatar";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { GraphQLModule } from "./graphql.module";
-import { OrganizationListComponent } from "./organization-list/organization-list.component";
-import { OrganizationDetailComponent } from "./organization-detail/organization-detail.component";
 import { PageNotFoundComponent } from "./page-not-found/page-not-found.component";
-import { OrganizationDetailEditModeComponent } from "./organization-detail-edit-mode/organization-detail-edit-mode.component";
-import { OrganizationDetailUserListComponent } from "./organization-detail-user-list/organization-detail-user-list.component";
+import { UserListComponent } from "./users/components/user-list/user-list.component";
+import { UserDetailComponent } from "./users/components/user-detail/user-detail.component";
+import { InlineTextEditComponent } from './shared/inline-text-edit/inline-text-edit.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    OrganizationListComponent,
-    OrganizationDetailComponent,
+    UserListComponent,
+    UserDetailComponent,
     PageNotFoundComponent,
-    OrganizationDetailEditModeComponent,
-    OrganizationDetailUserListComponent
+    InlineTextEditComponent
   ],
   imports: [
     BrowserModule,
@@ -57,6 +59,7 @@ import { OrganizationDetailUserListComponent } from "./organization-detail-user-
     MatInputModule,
     MatSelectModule,
     MatRadioModule,
+    MatTooltipModule,
     ReactiveFormsModule,
     AvatarModule.forRoot()
   ],
