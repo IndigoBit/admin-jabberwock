@@ -4,38 +4,10 @@ const { ObjectId } = require("mongodb");
 
 const { normalize } = require("./helpers");
 
-function contactReducer(flattened) {
-  if (!flattened) return;
-
-  const contact = {
-    name: flattened.contact_name,
-    address: flattened.contact_address,
-    phone: flattened.contact_phone,
-    email: flattened.contact_email
-  };
-
-  Object.keys(contact)
-    .filter(key => typeof contact[key] === "undefined")
-    .forEach(key => delete contact[key]);
-
-  return contact;
-}
-
-function flattenedReducers(flattened) {
-  if (!flattened) return;
-
-  const reduced = {};
-
-  const contact = contactReducer(flattened);
-  if (contact) reduced.contact = contact;
-
-  return reduced;
-}
-
 async function updateDocument(collection, _params, whiteList) {
   Object.freeze(_params);
 
-  const params = Object.assign({}, _params, flattenedReducers(_params));
+  const params = Object.assign({}, _params);
   const docId = ObjectId(params._id);
   const updatedFields = {};
 
@@ -54,7 +26,7 @@ async function updateDocument(collection, _params, whiteList) {
 async function createDocument(collection, _params, whiteList) {
   Object.freeze(_params);
 
-  const params = Object.assign({}, _params, flattenedReducers(_params));
+  const params = Object.assign({}, _params);
   const document = {};
 
   Object.keys(params)
@@ -66,7 +38,7 @@ async function createDocument(collection, _params, whiteList) {
 
   return normalize(await collection.findOne(newID));
 }
-
+3;
 async function getOneById(collection, id) {
   return getOneByQuery(collection, { _id: ObjectId(id) });
 }
@@ -80,25 +52,18 @@ async function getAll(collection, query) {
 }
 
 const whiteList = {
-  organizations: {
-    create: [`name`, `website`, `contact`],
-    update: [`name`, `website`, `contact`]
-  },
   users: {
-    create: [`name`],
-    update: [`name`, `active`]
+    create: [`name`, `email`, `username`, `active`],
+    update: [`name`, `email`, `username`, `active`, `requirePasswordReset`]
   },
   articles: {
-    create: [`name`, `description`, `content`, `creator`, `tags`],
+    create: [`name`, `description`, `content`, `tags`, `creator`],
     update: [`name`, `description`, `content`, `tags`]
   }
 };
 
 const typeDefs = gql`
   type Query {
-    organizationList: [Organization]!
-    organization(_id: ID): Organization
-
     userList: [User]!
     user(_id: ID): User
 
@@ -108,26 +73,18 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createOrganization(
-      name: String!
-      website: String
-      contact_name: String!
-      contact_email: String!
-      contact_address: String
-      contact_phone: String
-    ): Organization
-    updateOrganization(
+    createUser(
+      name: String
+      username: String!
+      email: String
+      active: Boolean
+    ): User
+    updateUser(
       _id: ID!
       name: String
-      website: String
-      contact_name: String!
-      contact_email: String!
-      contact_address: String!
-      contact_phone: String!
-    ): Organization
-
-    createUser(name: String!): User
-    updateUser(_id: ID!, name: String, active: Boolean): User
+      username: String
+      email: String
+    ): User
 
     createArticle(
       name: String!
@@ -143,31 +100,20 @@ const typeDefs = gql`
       content: String
       tags: [String]
     ): User
+
     enableUser(_id: ID!): User
     disableUser(_id: ID!): User
-  }
-
-  type Organization {
-    _id: ID!
-    name: String!
-    users: [User]
-    articles: [Article]
-    contact: Contact!
-    website: String
+    resetUserPassword(_id: ID!): User
   }
 
   type User {
     _id: ID!
-    name: String!
-    organization: Organization!
+    name: String
+    email: String
+    username: String!
     active: Boolean
-  }
-
-  type Contact {
-    name: String!
-    email: String!
-    phone: String
-    address: String
+    articles: [Article]
+    requirePasswordReset: Boolean
   }
 
   type Article {
@@ -182,11 +128,6 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    organizationList: async (_, __, { dataSources }) =>
-      await getAll(dataSources.organizations),
-    organization: async (_, { _id }, { dataSources }) =>
-      await getOneById(dataSources.organizations, _id),
-
     userList: async (_, __, { dataSources }) => await getAll(dataSources.users),
     user: async (_, { _id }, { dataSources }) =>
       await getOneById(dataSources.users, _id),
@@ -197,21 +138,13 @@ const resolvers = {
       await getOneById(dataSources.articles, _id)
   },
   Mutation: {
-    createOrganization: async (_, args, { dataSources }) =>
-      await createDocument(
-        dataSources.organizations,
-        args,
-        whiteList.organizations.create
-      ),
-    updateOrganization: async (_, args, { dataSources }) =>
-      await updateDocument(
-        dataSources.organizations,
-        args,
-        whiteList.organizations.update
-      ),
-
     createUser: async (_, args, { dataSources }) =>
-      await createDocument(dataSources.users, args, whiteList.users.create),
+      await createDocument(
+        dataSources.users,
+        //requirePasswordReset must be set to set to true when a new user is created
+        Object.assign({}, args, { requirePasswordReset: true }),
+        whiteList.users.create
+      ),
     updateUser: async (_, args, { dataSources }) =>
       await updateDocument(dataSources.users, args, whiteList.users.update),
     enableUser: async (_, args, { dataSources }) =>
@@ -224,6 +157,12 @@ const resolvers = {
       await updateDocument(
         dataSources.users,
         { _id: args._id, active: false },
+        whiteList.users.update
+      ),
+    resetUserPassword: async (_, args, { dataSources }) =>
+      await updateDocument(
+        dataSources.users,
+        { _id: args._id, requirePasswordReset: true },
         whiteList.users.update
       ),
 
@@ -240,13 +179,9 @@ const resolvers = {
         whiteList.articles.update
       )
   },
-  Organization: {
-    users: async (parent, __, { dataSources }) =>
-      await getAll(dataSources.users, { organization: ObjectId(parent._id) })
-  },
   User: {
-    organization: async (parent, __, { dataSources }) =>
-      await getOneById(dataSources.organizations, parent.organization)
+    articles: async (parent, __, { dataSources }) =>
+      await getAll(dataSources.articles, { creator: ObjectId(parent._id) })
   }
 };
 

@@ -1,6 +1,5 @@
 const { ApolloServer } = require("apollo-server");
 const { MongoClient } = require("mongodb");
-const { RedisCache } = require("apollo-server-cache-redis");
 
 const schema = require("./schema");
 const { getConfig, getRequestUser } = require("./helpers");
@@ -16,16 +15,9 @@ function getDataSources(db) {
   if (!db) return;
 
   return () => ({
-    organizations: db.collection(`organizations`),
     users: db.collection(`users`),
     articles: db.collection(`articles`),
     libraries: db.collection(`libraries`)
-  });
-}
-
-function getRedisCache() {
-  return new RedisCache({
-    host: config.redisHost
   });
 }
 
@@ -40,7 +32,6 @@ async function start() {
   return new ApolloServer({
     schema,
     context: getRequestUser(),
-    cache: getRedisCache(),
     dataSources: getDataSources(mongoClient.db()),
     tracing: true
   });
