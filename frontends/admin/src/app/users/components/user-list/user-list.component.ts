@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Observable, BehaviorSubject } from "rxjs";
 import { map, combineLatest, filter } from "rxjs/operators";
-import { UserListGqlQuery } from "../../user-list-gql-query";
+import { UserListGqlQuery } from "../../gql-queries/user-list-gql-query";
 import { User } from "../../user.gql-schema";
 
 @Component({
@@ -22,6 +22,7 @@ export class UserListComponent implements OnInit {
       .watch()
       .valueChanges.pipe(map(res => res.data.userList))
       .pipe(
+        // tslint:disable-next-line:no-shadowed-variable
         combineLatest(this.filterString.asObservable(), (userList, filter) =>
           userList.filter(
             user =>

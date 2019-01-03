@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Mutation } from "apollo-angular";
 import gql from "graphql-tag";
-import { User } from "./user.gql-schema";
+import { User } from "../user.gql-schema";
 
 interface Response {
   user: User;

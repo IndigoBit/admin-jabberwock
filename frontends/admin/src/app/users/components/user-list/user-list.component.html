@@ -1,24 +1,23 @@
-<mat-card class="page-title">
-  <mat-card-title i18n>Users</mat-card-title>
-  <mat-card-content>
-    <mat-form-field id="user-filter">
-      <input
-        matInput
-        (keyup)="applyFilter($event.target.value)"
-        placeholder="Filter"
-      />
-    </mat-form-field>
-  </mat-card-content>
-</mat-card>
-
 <div *ngIf="(userList$ | async) as userList; else loading">
+  <mat-card class="page-title">
+    <mat-card-title i18n>Users</mat-card-title>
+    <mat-card-content>
+      <mat-form-field id="user-filter">
+        <input
+          matInput
+          (keyup)="applyFilter($event.target.value)"
+          placeholder="Filter"
+        />
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
   <a *ngFor="let user of userList" [routerLink]="['/users', user._id]">
     <mat-card class="card-list-table">
       <mat-card-header>
         <avatar
           mat-card-avatar
-          [name]="user.name"
-          [email]="user.email"
+          [name]="user.name || user.email || user.username"
           size="40"
         ></avatar>
         <mat-card-title>{{ user.name }}</mat-card-title>
@@ -28,8 +27,11 @@
   </a>
 </div>
 
-<ng-template #loading i18n>
+<ng-template #loading>
   <mat-card>
     <mat-card-subtitle>Loading User List...</mat-card-subtitle>
+    <mat-card-content>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </mat-card-content>
   </mat-card>
 </ng-template>

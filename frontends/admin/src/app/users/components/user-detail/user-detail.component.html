@@ -3,14 +3,13 @@
     <mat-card-header>
       <avatar
         mat-card-avatar
-        [name]="user.name"
-        [email]="user.email"
+        [name]="user.name || user.email || user.username"
         size="40"
       ></avatar>
       <mat-card-title>{{ user.name }}</mat-card-title>
       <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
       <div>
-        <button mat-icon-button color="warn" (click)="deleteCard()">
+        <button mat-icon-button color="warn" (click)="promptDestroy(user.name)">
           <mat-icon
             aria-label="delete"
             matTooltip="Permanently delete this user"
@@ -90,4 +89,11 @@
   </mat-card>
 </div>
 
-<ng-template #loading>Loading User...</ng-template>
+<ng-template #loading>
+  <mat-card>
+    <mat-card-subtitle>Loading User...</mat-card-subtitle>
+    <mat-card-content>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    </mat-card-content>
+  </mat-card>
+</ng-template>

@@ -20,7 +20,10 @@ import {
   MatTabsModule,
   MatMenuModule,
   MatExpansionModule,
-  MatTooltipModule
+  MatTooltipModule,
+  MatDialogModule,
+  MatSnackBarModule,
+  MatProgressBarModule
 } from "@angular/material";
 import { AvatarModule } from "ng2-avatar";
 
@@ -30,7 +33,8 @@ import { GraphQLModule } from "./graphql.module";
 import { PageNotFoundComponent } from "./page-not-found/page-not-found.component";
 import { UserListComponent } from "./users/components/user-list/user-list.component";
 import { UserDetailComponent } from "./users/components/user-detail/user-detail.component";
-import { InlineTextEditComponent } from './shared/inline-text-edit/inline-text-edit.component';
+import { InlineTextEditComponent } from "./shared/inline-text-edit/inline-text-edit.component";
+import { DestroyConfirmationDialogComponent } from "./shared/destroy-confirmation-dialog/destroy-confirmation-dialog.component";
 
 @NgModule({
   declarations: [
@@ -38,7 +42,8 @@ import { InlineTextEditComponent } from './shared/inline-text-edit/inline-text-e
     UserListComponent,
     UserDetailComponent,
     PageNotFoundComponent,
-    InlineTextEditComponent
+    InlineTextEditComponent,
+    DestroyConfirmationDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -60,9 +65,13 @@ import { InlineTextEditComponent } from './shared/inline-text-edit/inline-text-e
     MatSelectModule,
     MatRadioModule,
     MatTooltipModule,
+    MatDialogModule,
     ReactiveFormsModule,
+    MatSnackBarModule,
+    MatProgressBarModule,
     AvatarModule.forRoot()
   ],
+  entryComponents: [DestroyConfirmationDialogComponent],
   providers: [],
   bootstrap: [AppComponent]
 })

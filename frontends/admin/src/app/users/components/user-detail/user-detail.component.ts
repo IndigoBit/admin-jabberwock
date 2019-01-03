@@ -1,13 +1,16 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute, Event } from "@angular/router";
-import { Observable } from "rxjs";
-import { map, merge, combineLatest } from "rxjs/operators";
-import { UserGqlQuery } from "../../user-gql-query";
+import { ActivatedRoute, Router } from "@angular/router";
+import { MatDialog, MatSnackBar } from "@angular/material";
+import { Observable, throwError } from "rxjs";
+import { map, combineLatest, catchError } from "rxjs/operators";
+import { UserGqlQuery } from "../../gql-queries/user-gql-query";
 import { User } from "../../user.gql-schema";
-import { UpdateUserGqlMutation } from "../../update-user-gql-mutation";
-import { EnableUserGqlMutation } from "../../enable-user-gql-mutation";
-import { DisableUserGqlMutation } from "../../disable-user-gql-mutation";
-import { ResetUserPasswordGqlMutation } from "../../reset-user-password-gql-mutation.1";
+import { DisableUserGqlMutation } from "../../gql-mutations/disable-user-gql-mutation";
+import { UpdateUserGqlMutation } from "../../gql-mutations/update-user-gql-mutation";
+import { EnableUserGqlMutation } from "../../gql-mutations/enable-user-gql-mutation";
+import { ResetUserPasswordGqlMutation } from "../../gql-mutations/reset-user-password-gql-mutation";
+import { DestroyConfirmationDialogComponent } from "src/app/shared/destroy-confirmation-dialog/destroy-confirmation-dialog.component";
+import { DestroyUserGqlMutation } from "../../gql-mutations/destroy-user-gql-mutation";
 
 @Component({
   selector: "app-user-detail",
@@ -15,20 +18,23 @@ import { ResetUserPasswordGqlMutation } from "../../reset-user-password-gql-muta
   styleUrls: ["./user-detail.component.scss"]
 })
 export class UserDetailComponent implements OnInit {
-  private userId: string;
-  protected user$: Observable<User>;
-  protected viewOnlyMode: boolean;
-
   constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private userGqlQuery: UserGqlQuery,
     private updateUserGqlMutation: UpdateUserGqlMutation,
     private enableUserGqlMutation: EnableUserGqlMutation,
     private disableUserGqlMutation: DisableUserGqlMutation,
     private resetUserPasswordGqlMutation: ResetUserPasswordGqlMutation,
-    private route: ActivatedRoute
+    private destroyUserGqlMutation: DestroyUserGqlMutation,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.viewOnlyMode = false;
   }
+  private userId: string;
+  protected user$: Observable<User>;
+  protected viewOnlyMode: boolean;
 
   ngOnInit() {
     this.userId = this.route.snapshot.paramMap.get(`id`);
@@ -36,22 +42,6 @@ export class UserDetailComponent implements OnInit {
     this.user$ = this.userGqlQuery
       .watch({ userId: this.userId })
       .valueChanges.pipe(map(res => res.data.user));
-  }
-
-  protected deleteCard(): void {
-    //todo, prompt, on confirm delete
-    console.log(`todo`);
-  }
-
-  protected updateData(updatedField: any, fieldName: string): void {
-    const variables = { userId: this.userId };
-    variables[fieldName] = updatedField;
-
-    const updatedUser$ = this.updateUserGqlMutation
-      .mutate(variables)
-      .pipe(map(res => res.data.updateUser));
-
-    this.overrideWithUpdatedUser(updatedUser$);
   }
 
   protected editingData($event: boolean): void {
@@ -63,33 +53,82 @@ export class UserDetailComponent implements OnInit {
     this.viewOnlyMode = $event;
   }
 
-  protected enableUser() {
-    const updatedUser$ = this.enableUserGqlMutation
-      .mutate({ userId: this.userId })
-      .pipe(map(res => res.data.user));
+  protected promptDestroy(name: string): void {
+    this.dialog
+      .open(DestroyConfirmationDialogComponent, {
+        data: {
+          text: `Are you sure you want to delete ${name}`
+        }
+      })
+      .afterClosed()
+      .subscribe(confirmed => {
+        if (!confirmed) {
+          return;
+        }
 
-    this.overrideWithUpdatedUser(updatedUser$);
+        this.destroyUser();
+      });
+  }
+
+  private destroyUser() {
+    this.destroyUserGqlMutation
+      .mutate({ userId: this.userId })
+      .pipe(catchError(res => this.handleError(res)))
+      .pipe(map(res => res.data.user))
+      .subscribe(_ => {
+        this.clearError();
+        this.router.navigate(["/users"]);
+      });
+  }
+
+  protected updateData(updatedField: any, fieldName: string): void {
+    const variables = { userId: this.userId };
+    variables[fieldName] = updatedField;
+
+    this.updateUserGqlMutation
+      .mutate(variables)
+      .pipe(catchError(res => this.handleError(res)))
+      .pipe(map(res => res.data.user))
+      .subscribe();
+  }
+
+  protected enableUser() {
+    this.enableUserGqlMutation
+      .mutate({ userId: this.userId })
+      .pipe(catchError(res => this.handleError(res)))
+      .pipe(map(res => res.data.user))
+      .subscribe();
   }
 
   protected disableUser() {
-    const updatedUser$ = this.disableUserGqlMutation
+    this.disableUserGqlMutation
       .mutate({ userId: this.userId })
-      .pipe(map(res => res.data.user));
-
-    this.overrideWithUpdatedUser(updatedUser$);
+      .pipe(catchError(res => this.handleError(res)))
+      .pipe(map(res => res.data.user))
+      .subscribe();
   }
 
   protected resetPassword() {
-    const updatedUser$ = this.resetUserPasswordGqlMutation
+    this.resetUserPasswordGqlMutation
       .mutate({ userId: this.userId })
-      .pipe(map(res => res.data.user));
-
-    this.overrideWithUpdatedUser(updatedUser$);
+      .pipe(catchError(res => this.handleError(res)))
+      .pipe(map(res => res.data.user))
+      .subscribe();
   }
 
-  protected overrideWithUpdatedUser(updatedUser$: Observable<User>): void {
-    this.user$ = this.user$.pipe(
-      combineLatest(updatedUser$, (s1, s2) => Object.assign({}, s1, s2))
-    );
+  private handleError(res: any): Observable<any> {
+    if (res.message) {
+      this.displayError(res.message);
+    }
+
+    return throwError(res);
+  }
+
+  private displayError(errorMessage: string) {
+    this.snackBar.open(errorMessage, `Dismiss`);
+  }
+
+  private clearError() {
+    this.snackBar.dismiss();
   }
 }

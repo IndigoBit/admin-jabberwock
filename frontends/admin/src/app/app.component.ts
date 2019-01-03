@@ -27,6 +27,11 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // subscribe must be a lambda not the function call itself, else we wont have this.overlayContainer defined in the function
     this.themeChanger.subscribe(() => this.changeTheme());
+
+    // set the overlay to the default theme
+    this.overlayContainer
+      .getContainerElement()
+      .classList.add(this.currentTheme);
   }
 
   ngOnDestroy(): void {
