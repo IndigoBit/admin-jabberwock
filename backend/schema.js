@@ -1,55 +1,13 @@
 const { gql } = require("apollo-server");
 const { makeExecutableSchema } = require("graphql-tools");
-const { ObjectId } = require("mongodb");
-
-const { normalize } = require("./helpers");
-
-async function updateDocument(collection, _params, whiteList) {
-  Object.freeze(_params);
-
-  const params = Object.assign({}, _params);
-  const docId = ObjectId(params._id);
-  const updatedFields = {};
-
-  Object.keys(params)
-    .filter(param => whiteList.includes(param))
-    .forEach(param => (updatedFields[param] = params[param]));
-
-  // only update if they're something to update in the first place
-  if (Object.keys(updatedFields).length) {
-    await collection.updateOne({ _id: docId }, { $set: updatedFields });
-  }
-
-  return normalize(await collection.findOne(docId));
-}
-
-async function createDocument(collection, _params, whiteList) {
-  Object.freeze(_params);
-
-  const params = Object.assign({}, _params);
-  const document = {};
-
-  Object.keys(params)
-    .filter(param => whiteList.includes(param))
-    .forEach(param => (document[param] = params[param]));
-
-  const res = await collection.insertOne(document);
-  const newID = res.insertedId;
-
-  return normalize(await collection.findOne(newID));
-}
-3;
-async function getOneById(collection, id) {
-  return getOneByQuery(collection, { _id: ObjectId(id) });
-}
-
-async function getOneByQuery(collection, query) {
-  return normalize(await collection.findOne(query));
-}
-
-async function getAll(collection, query) {
-  return (await collection.find(query).toArray()).map(normalize);
-}
+const { ObjectId } = require("mongodb"); // maybe make this only available in data-acess??
+const {
+  getAll,
+  getOneById,
+  createDocument,
+  updateDocument,
+  destroyDocument
+} = require("./data-access");
 
 const whiteList = {
   users: {
@@ -79,12 +37,8 @@ const typeDefs = gql`
       email: String
       active: Boolean
     ): User
-    updateUser(
-      _id: ID!
-      name: String
-      username: String
-      email: String
-    ): User
+    updateUser(_id: ID!, name: String, username: String, email: String): User
+    destroyUser(_id: ID!): User
 
     createArticle(
       name: String!
@@ -147,6 +101,9 @@ const resolvers = {
       ),
     updateUser: async (_, args, { dataSources }) =>
       await updateDocument(dataSources.users, args, whiteList.users.update),
+    destroyUser: async (_, { _id }, { dataSources }) =>
+      await destroyDocument(dataSources.users, ObjectId(_id)),
+
     enableUser: async (_, args, { dataSources }) =>
       await updateDocument(
         dataSources.users,
