@@ -5,10 +5,11 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./node_modules/.bin/nodemon ./server.js"
+    "start": "./node_modules/.bin/nodemon ./server.js",
+    "debug": "node --inspect-brk=9200 ./server.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "",
   "dependencies": {
     "apollo-server": "2.3.1",
     "apollo-server-cache-redis": "0.2.1",
@@ -17,10 +18,17 @@
     "graphql-tools": "4.0.3",
     "jsonwebtoken": "8.4.0",
     "mongodb": "3.1.10",
+    "mongoose": "^5.4.20",
+    "mongoose-version": "^1.1.0",
     "nodemon": "1.18.9",
     "redis": "2.8.0"
   },
   "nodemonConfig": {
     "delay": 1000
+  },
+  "devDependencies": {
+    "eslint": "^5.15.3",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.16.0"
   }
 }
