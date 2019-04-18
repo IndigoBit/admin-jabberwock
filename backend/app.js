@@ -1,40 +1,43 @@
-const { ApolloServer } = require("apollo-server");
-const { MongoClient } = require("mongodb");
+const { ApolloServer } = require('apollo-server');
+const mongoose = require('mongoose');
 
-const schema = require("./schema");
-const { getConfig, getRequestUser } = require("./helpers");
+const schema = require('./gql-schema');
+const { getConfig, getRequestUser } = require('./helpers');
 
 const config = getConfig();
 
-/**
- * Return a function taking no params and returning the datasources.
- * This is the format apollo expects.
- * @param {*} db
- */
-function getDataSources(db) {
-  if (!db) return;
-
-  return () => ({
-    users: db.collection(`users`),
-    articles: db.collection(`articles`),
-    libraries: db.collection(`libraries`)
-  });
-}
-
 async function start() {
-  const mongoUri = config.dbUri;
-  const mongoOptions = { useNewUrlParser: true };
-  const mongoClient = await MongoClient.connect(
-    mongoUri,
-    mongoOptions
-  );
+  const connectionUri = config.dbUri;
+  const additionalParameters = { useNewUrlParser: true };
+  await mongoose.connect(connectionUri, additionalParameters);
 
-  return new ApolloServer({
+  // const testUser = new DAL.User({
+  //     email: 'testuser@email.com',
+  //     password: 'password2'
+  //   });
+  // await testUser.save();
+  // console.log(testUser);
+
+  // const user = await User.findOne({ _id: "5c9fb20d9fe2d48608cb1150" });
+  // console.log(user);
+  // user.password = "newone5";
+  // user.save();
+
+  // https://github.com/apollographql/apollo-server/issues/1633
+  // Getting mongoose ObjectIds to work with apollo is a pain...
+  const { ObjectId } = mongoose.Types;
+  ObjectId.prototype.valueOf = function valueOf() {
+    return this.toString();
+  };
+
+  const server = new ApolloServer({
     schema,
     context: getRequestUser(),
-    dataSources: getDataSources(mongoClient.db()),
-    tracing: true
+    tracing: true,
   });
+  const port = config.apiPort;
+
+  return { server, port };
 }
 
 module.exports = { start };
