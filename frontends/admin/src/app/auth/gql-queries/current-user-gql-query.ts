@@ -1,24 +1,24 @@
 import { Injectable } from "@angular/core";
 import { Query } from "apollo-angular";
 import gql from "graphql-tag";
-import { User } from "../user.gql-schema";
+import { User } from "src/app/users/user.gql-schema";
 
 interface Response {
-  user: User;
+  currentUser: User;
 }
 
 @Injectable({
   providedIn: "root"
 })
-export class UserGqlQuery extends Query<Response> {
+export class CurrentUserGqlQuery extends Query<Response> {
   document = gql`
-    query User($userId: ID!) {
-      user(_id: $userId) {
+    query CurrentUser {
+      currentUser {
         _id
         name
         email
-        active
         requirePasswordReset
+        token
       }
     }
   `;

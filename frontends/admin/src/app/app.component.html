@@ -11,10 +11,11 @@
           <button mat-button [routerLink]="['articles']">Articles</button>
         </nav>
         <div class="toolbar-actions">
+          <button mat-button [routerLink]="['log-out']">Log Out</button>
           <button mat-icon-button>
-            <mat-icon aria-label="Change themes" (click)="invertTheme()"
-              >invert_colors</mat-icon
-            >
+            <mat-icon aria-label="Change themes" (click)="invertTheme()">
+              invert_colors
+            </mat-icon>
           </button>
         </div>
       </mat-toolbar-row>

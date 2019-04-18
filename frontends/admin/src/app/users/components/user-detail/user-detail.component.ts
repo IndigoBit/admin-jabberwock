@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { MatDialog, MatSnackBar } from "@angular/material";
 import { Observable, throwError } from "rxjs";
-import { map, combineLatest, catchError } from "rxjs/operators";
+import { map, combineLatest, catchError, first } from "rxjs/operators";
 import { UserGqlQuery } from "../../gql-queries/user-gql-query";
 import { User } from "../../user.gql-schema";
 import { DisableUserGqlMutation } from "../../gql-mutations/disable-user-gql-mutation";
@@ -61,6 +61,7 @@ export class UserDetailComponent implements OnInit {
         }
       })
       .afterClosed()
+      .pipe(first())
       .subscribe(confirmed => {
         if (!confirmed) {
           return;
@@ -74,7 +75,7 @@ export class UserDetailComponent implements OnInit {
     this.destroyUserGqlMutation
       .mutate({ userId: this.userId })
       .pipe(catchError(res => this.handleError(res)))
-      .pipe(map(res => res.data.user))
+      .pipe(first())
       .subscribe(_ => {
         this.clearError();
         this.router.navigate(["/users"]);
@@ -88,7 +89,7 @@ export class UserDetailComponent implements OnInit {
     this.updateUserGqlMutation
       .mutate(variables)
       .pipe(catchError(res => this.handleError(res)))
-      .pipe(map(res => res.data.user))
+      .pipe(first())
       .subscribe();
   }
 
@@ -96,7 +97,7 @@ export class UserDetailComponent implements OnInit {
     this.enableUserGqlMutation
       .mutate({ userId: this.userId })
       .pipe(catchError(res => this.handleError(res)))
-      .pipe(map(res => res.data.user))
+      .pipe(first())
       .subscribe();
   }
 
@@ -104,7 +105,7 @@ export class UserDetailComponent implements OnInit {
     this.disableUserGqlMutation
       .mutate({ userId: this.userId })
       .pipe(catchError(res => this.handleError(res)))
-      .pipe(map(res => res.data.user))
+      .pipe(first())
       .subscribe();
   }
 
@@ -112,7 +113,7 @@ export class UserDetailComponent implements OnInit {
     this.resetUserPasswordGqlMutation
       .mutate({ userId: this.userId })
       .pipe(catchError(res => this.handleError(res)))
-      .pipe(map(res => res.data.user))
+      .pipe(first())
       .subscribe();
   }
 

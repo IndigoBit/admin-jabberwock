@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Mutation } from "apollo-angular";
+import { User } from "src/app/users/user.gql-schema";
 import gql from "graphql-tag";
-import { User } from "../user.gql-schema";
 
 interface Response {
   user: User;
@@ -10,13 +10,15 @@ interface Response {
 @Injectable({
   providedIn: "root"
 })
-export class UpdateUserGqlMutation extends Mutation<Response> {
+export class ResetPasswordGqlMutation extends Mutation<Response> {
   document = gql`
-    mutation UpdateUser($userId: ID!, $name: String, $email: String) {
-      updateUser(_id: $userId, name: $name, email: $email) {
+    mutation ResetPassword($password: String!) {
+      resetPassword(password: $password) {
         _id
         name
         email
+        requirePasswordReset
+        token
       }
     }
   `;
