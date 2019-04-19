@@ -1,0 +1,87 @@
+<!-- <mat-form-field id="user-filter">
+  <input
+    matInput
+    (keyup)="applyFilter($event.target.value)"
+    placeholder="Filter"
+  />
+</mat-form-field>
+
+<div class="mat-elevation-z8">
+  <table
+    mat-table
+    class="full-width-table"
+    [dataSource]="dataSource"
+    matSort
+    multiTemplateDataRows
+    aria-label="Elements"
+  > -->
+
+    <!-- Name Column -->
+    <!-- <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.name }}
+        <span *ngIf="!row.active" class="disabled-user" color="warn" i18n
+          >(disabled)</span
+        >
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="expandedDetail" class="expanded-detail">
+      <td
+        mat-cell
+        *matCellDef="let row"
+        [attr.colspan]="displayedColumns.length"
+      >
+        <div
+          class="row-detail"
+          [@detailExpand]="row == expandedRow ? 'expanded' : 'collapsed'"
+        >
+          <div>
+            <button
+              mat-button
+              color="warn"
+              *ngIf="row.active"
+              (click)="disableUser(row._id)"
+            >
+              Disable User
+            </button>
+            <button
+              mat-button
+              color="warn"
+              *ngIf="!row.active"
+              (click)="enableUser(row._id)"
+            >
+              Enable User
+            </button>
+            <button mat-button>Edit User</button>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns"
+      class="table-row"
+      [class.expanded-row]="expandedRow === row"
+      (click)="expandedRow = expandedRow === row ? null : row"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="detail-row"
+      [class.expanded-detail-row]="expandedRow === row"
+    ></tr>
+  </table>
+
+  <mat-paginator
+    #paginator
+    [length]="dataSource.data.length"
+    [pageIndex]="0"
+    [pageSize]="10"
+    [pageSizeOptions]="[10, 25, 50, 100, 250]"
+  >
+  </mat-paginator>
+</div> -->
