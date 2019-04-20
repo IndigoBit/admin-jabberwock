@@ -12,8 +12,8 @@ interface Response {
 })
 export class ResetPasswordGqlMutation extends Mutation<Response> {
   document = gql`
-    mutation ResetPassword($password: String!) {
-      resetPassword(password: $password) {
+    mutation ResetPassword($_id: ID!) {
+      resetUserPassword(_id: $_id) {
         _id
         name
         email

@@ -13,9 +13,7 @@ interface Response {
 export class LogoutGqlMutation extends Mutation<Response> {
   document = gql`
     mutation Logout {
-      logout {
-        _id
-      }
+      logout
     }
   `;
 }

@@ -6,7 +6,7 @@ import { from, ApolloLink } from "apollo-link";
 import { HttpHeaders } from "@angular/common/http";
 
 // TODO: this needs to come from environment
-const uri = 'http://localhost:4242/';
+const uri = 'http://localhost:7300/';
 export function createApollo(httpLink: HttpLink) {
   const http = httpLink.create({ uri });
 
